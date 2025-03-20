@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Books</title>
+    <link rel="stylesheet" href="../src/output.css">
+
+    <script>
+        function submit_form(event) {
+            event.preventDefault();
+            let formData = new FormData(event.target)
+            fetch("../api/admin/add_book.php", {
+                method: "POST", body: formData
+            })
+                .then((response) => response.json())
+                .then(data => {
+                    if (data.status == 'success') {
+                        event.target.reset();
+                        window.location.href = "manage_books.html"
+                    } else {
+                        alert(data.message || 'An error encountered and book records was not saved.')
+                    }
+                })
+                .catch((error) => {
+                    alert(error.response.message || 'An error encountered and book records was not saved.')
+                    console.error(error);
+                })
+        }
+    </script>
+</head>
+
+<body class="bg-slate-100">
+    <header class="bg-teal-700 text-white">
+        <div class="max-w-6xl mx-auto">
+            <aside>
+                <h2 class="text-xl font-bold py-2 px-4 md:px-0">Add New Book</h2>
+            </aside>
+        </div>
+    </header>
+
+
+    <!-- User Cards Section -->
+    <section class="flex items-center justify-center py-12">
+        <div class="max-w-sm w-full text-center bg-white px-4 py-4">
+            <form onsubmit="submit_form(event)" enctype="multipart/form-data">
+                <h1 class="text-2xl font-bold mb-4 text-gray-800 text-start">Add Book</h1>
+                <div>
+                    <input type="text" name="title" placeholder="Book Title" required class="mine-inputs">
+                </div>
+                <div class="mt-4">
+                    <input type="text" name="author" placeholder="Author" required class="mine-inputs">
+                </div>
+                <div class="mt-4">
+                    <input type="text" name="isbn" placeholder="ISBN" required class="mine-inputs">
+                </div>
+                <div class="mt-4">
+                    <input type="date" name="published_date" placeholder="Published Date" required class="mine-inputs">
+                </div>
+                <div class="mt-4">
+                    <input type="number" name="quantity" placeholder="Quantity Available" required class="mine-inputs">
+                </div>
+                <div class="mt-4">
+                    <select name="category" required class="mine-inputs w-full">
+                        <option value="">
+                            Select Category
+                        </option>
+                        <option value="best seller"> Best Seller </option>
+                        <option value="novel"> Novel </option>
+                        <option value="science fiction"> Science Fiction </option>
+                        <option value="comic book"> Comic Book </option>
+                    </select>
+                </div>
+                <div class="mt-4">
+                    <input type="file" name="cover_image" placeholder="Book Cover Image" class="mine-inputs" accept="image/*">
+                </div>
+                <div class="mt-4 flex items-center gap-4">
+                    <a href="manage_books.html" class="bg-red-500 block text-white rounded-xl py-1 px-4">
+                        Cancel
+                    </a>
+                    <button type="submit" class="bg-teal-500 text-white rounded-xl w-full py-1 px-4 flex-grow">
+                        Save Book
+                    </button>
+                </div>
+            </form>
+        </div>
+    </section>
+
+</body>
+</html>

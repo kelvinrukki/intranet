@@ -7,6 +7,20 @@ $author = $_POST["author"];
 $isbn = $_POST["isbn"];
 $published_date = $_POST["published_date"];
 $category = $_POST["category"];
+$quantity = $_POST["quantity"];
+
+$cover_image = null;
+// Upload Image File
+if (!empty($_FILES['cover_image']['tmp_name'])) {
+    $temp_file = $_FILES['cover_image']['tmp_name'];
+    $image_name = $_FILES['cover_image']['name'];
+    $image_name = str_replace(" ", "_", strtolower($image_name));
+    $path = '../images/' . $image_name;
+    if (move_uploaded_file($temp_file, $path)) {
+        $cover_image = '../api/images/'  . $image_name;
+    }
+}
+
 
 // Check if the book already exists
 $sqlCheck = "SELECT * FROM books WHERE isbn=?";
@@ -25,9 +39,9 @@ if ($resultCheck->num_rows > 0) {
 }
 
 // Submit data to database
-$sqlInsert = "INSERT INTO books (title, author, isbn, published_date, category) VALUES (?, ?, ?, ?, ?)";
+$sqlInsert = "INSERT INTO books (title, author, isbn, published_date, category, quantity, cover_image) VALUES (?, ?, ?, ?, ?, ?, ?)";
 $stmtInsert = $connect->prepare($sqlInsert);
-$stmtInsert->bind_param("sssss", $title, $author, $isbn, $published_date, $category);
+$stmtInsert->bind_param("sssssis", $title, $author, $isbn, $published_date, $category, $quantity, $cover_image);
 $execInsert = $stmtInsert->execute();
 
 if ($execInsert) {

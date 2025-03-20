@@ -12,6 +12,7 @@ $sqlstatement2="select * from users where username='$username' or email='$email'
 $execCheckQuery=$connect->query($sqlstatement2);
 if($execCheckQuery->num_rows > 0){
     header("HTTP/1.1 400");
+    
     echo json_encode([
         "status"=>"failed",
         "message"=>"User already exists"
