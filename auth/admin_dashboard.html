@@ -1,19 +1,33 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
+    <!-- Check if user is logged in -->
+    <script>
+        if (!localStorage.getItem("currentuser")) {
+            window.location.href = "login.html"
+        }
+    </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard</title>
     <link rel="stylesheet" href="../src/output.css">
 </head>
+
 <body class="bg-[url('../images/library.jpeg')] bg-no-repeat bg-cover">
-    <div class="h-screen bg-teal-950/80 text-white flex items-center justify-center ">
+    <div class="h-screen bg-teal-950/80 text-white flex items-center justify-center relative">
+        <div>
+            <a href="../api/logout.php"
+                class="absolute top-4 right-4 bg-white shadow font-bold text-sm text-teal-700 px-4 py-2 rounded-lg">
+                Logout
+            </a>
+        </div>
         <section class="max-w-3xl text-center">
             <h1 class="text-5xl mb-4">Welcome to Admin Dashboard</h1>
             <h3 class="mb-7">
                 Manage books and users
             </h3>
-            
+
             <div class="flex items-center gap-3 justify-center">
                 <a href="manage_books.html" class="block py-2 px-4 rounded-lg bg-teal-700 text-white text-xl font-bold">
                     Manage Books
@@ -26,4 +40,5 @@
         </section>
     </div>
 </body>
+
 </html>

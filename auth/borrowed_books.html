@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Borrowed Books</title>
+    <link rel="stylesheet" href="../src/output.css">
+</head>
+
+<body class="bg-slate-100">
+    <header class="bg-teal-700 text-white">
+        <div class="max-w-6xl mx-auto flex justify-between items-center">
+            <aside>
+                <h2 class="text-xl font-bold py-2 px-4 md:px-0">Borrowed Books</h2>
+            </aside>
+            <aside class="flex items-center gap-5">
+                <a href="user_dashboard.html" class="hover:underline">Dashboard</a>
+                <a href="../api/logout.php"
+                    class="bg-white shadow font-bold text-sm text-teal-700 px-3 py-1 rounded-lg">
+                    Logout
+                </a>
+            </aside>
+        </div>
+    </header>
+
+    <div class="py-4 max-w-6xl mx-auto flex justify-between px-4">
+        <aside>
+            <a href="user_dashboard.html" class="text-sm text-blue-500 hover:underline">Back to Dashboard</a>
+        </aside>
+    </div>
+
+    <section>
+        <aside class="grid grid-cols-2 md:grid-cols-4 gap-3 max-w-6xl mx-auto px-4" id="borrowed_books_grid">
+        </aside>
+    </section>
+
+    <script>
+        function fetchBorrowedBooks() {
+            const userId = JSON.parse(localStorage.getItem('currentuser')).id;
+
+            fetch(`../api/fetch_borrowed_book.php?user_id=${userId}`)
+                .then(response => response.json())
+                .then(data => {
+                    const borrowedBooksGrid = document.getElementById('borrowed_books_grid');
+                    borrowedBooksGrid.innerHTML = '';
+
+                    if (data.borrowedBooks && data.borrowedBooks.length === 0) {
+                        data.borrowedBooks.forEach(borrowedBook => {
+                            const bookCard = document.createElement('div');
+                            bookCard.classList.add('bg-white', 'rounded-lg', 'shadow-md');
+                            bookCard.innerHTML = `
+                                <div class="p-4">
+                                    <h3 class="text-lg font-bold">${borrowedBook.title}</h3>
+                                    <p class="text-gray-600 text-sm">By ${borrowedBook.author}</p>
+                                    <p class="text-gray-600 text-sm">Borrowed on ${borrowedBook.borrowed_date}</p>
+                                    <p class="text-gray-600 text-sm">Return on ${borrowedBook.return_date}</p>
+                                    <button class="bg-teal-600 text-white rounded-lg py-1 px-4 mt-2" onclick="returnBook(${borrowedBook.id})">Return Book</button>
+                                </div>
+                            `;
+                            borrowedBooksGrid.appendChild(bookCard);
+                        });
+                    } else {
+                        const noBooksCard = document.createElement('div');
+                        noBooksCard.classList.add('bg-white', 'rounded-lg', 'shadow-md', 'md:col-span-4');
+                        noBooksCard.innerHTML = `
+                            <div class="p-4">
+                                <h3 class="text-lg font-bold">No record of borrowed books found!</h3>
+                            </div>
+                        `;
+                        borrowedBooksGrid.appendChild(noBooksCard);
+                        console.log(data);
+                    }
+                })
+                .catch(error => console.error(error));
+        }
+
+        fetchBorrowedBooks();
+
+        function returnBook(book_id) {
+            let user = JSON.parse(localStorage.getItem("currentuser"));
+            let formData = new FormData();
+            formData.append("user_id", user.id);
+            formData.append("book_id", book_id);
+            fetch('../api/return_book.php', {
+                method: "POST",
+                body: formData
+            })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.status === "success") {
+                        alert("Book returned successfully!");
+                        fetchBorrowedBooks();
+                    } else {
+                        alert(data.message || "Failed to return book!");
+                    }
+                })
+                .catch(err => console.log(err));
+        }
+    </script>
+</body>
+
+</html>

@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -14,17 +15,17 @@
             })
                 .then((response) => response.json())
                 .then(data => {
-                    if (data.status=="success") {
-                        let user=data.user;
-                      localStorage.setItem("currentuser",JSON.stringify(user));
-                      event.target.reset();
-                      if (user.role=="admin"){
-                        // redirect to admin dashboard
-                        window.location.href="admin_dashboard.html"
-                      } else {
-                        // redirect to user dashboard
-                        window.location.href="user_dashboard.html"
-                      }
+                    if (data.status == "success") {
+                        let user = data.user;
+                        localStorage.setItem("currentuser", JSON.stringify(user));
+                        event.target.reset();
+                        if (user.role == "admin") {
+                            // redirect to admin dashboard
+                            window.location.href = "admin_dashboard.html"
+                        } else {
+                            // redirect to user dashboard
+                            window.location.href = "user_dashboard.html"
+                        }
                     } else {
                         alert(data.message);
                     };
@@ -38,6 +39,7 @@
         }
     </script>
 </head>
+
 <body class="bg-[url('../images/library.jpeg')]     bg-no-repeat bg-cover">
     <div class="h-screen bg-teal-500/50 text-white flex items-center justify-center ">
         <section class="max-w-3xl text-center bg-white px-4 py-4">
@@ -55,11 +57,12 @@
                     </button>
                 </div>
                 <div class="mt-4 text-gray-500 text-xs">
-                    Don't have an account? <a href="register.html" class="text-teal-500 underline">Create one </a> 
+                    Don't have an account? <a href="register.html" class="text-teal-500 underline">Create one </a>
                 </div>
             </form>
         </section>
     </div>
-    
+
 </body>
+
 </html>

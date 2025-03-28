@@ -1,11 +1,143 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
+    <!-- Check if user is logged in -->
+    <script>
+        if (!localStorage.getItem("currentuser")) {
+            window.location.href = "login.html"
+        }
+    </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>User Dashboard</title>
+    <link rel="stylesheet" href="../src/output.css">
 </head>
+
 <body>
-    <h1>Welcome to User Dashboard</h1>
+    <header class="bg-teal-700 text-white">
+        <div class="max-w-6xl mx-auto flex justify-between items-center">
+            <aside>
+                <h2 class="text-xl font-bold py-2 px-4 md:px-0">User Dashboard</h2>
+            </aside>
+
+            <aside class="flex items-center gap-5">
+                <a href="borrowed_books.html" class="hover:underline">Borrowed Books</a>
+                <a href="../api/logout.php"
+                    class="bg-white shadow font-bold text-sm text-teal-700 px-3 py-1 rounded-lg">
+                    Logout
+                </a>
+            </aside>
+        </div>
+    </header>
+
+    <div class="py-4 max-w-6xl mx-auto flex justify-between px-4">
+        <aside>
+            <h2 class="text-2xl font-bold">List of Books</h2>
+        </aside>
+
+        <aside class="">
+            <input type="search" name="search" id="search" placeholder="Search Books by title, ISBN, author or category"
+                class="py-1 px-2 border rounded-sm min-w-sm">
+        </aside>
+    </div>
+
+    <section>
+        <aside class="grid grid-cols-2 md:grid-cols-4 gap-3 max-w-6xl mx-auto px-4" id="books_grid">
+        </aside>
+    </section>
+
+    <script>
+        function fetchBooks() {
+            fetch("../api/admin/fetch_all_books.php")
+            .then(res => res.json())
+            .then(data => {
+                let books_grid = document.getElementById("books_grid");
+                let cards = "";
+                data.books.forEach(book => {
+                    cards += `<div class="bg-white rounded-lg shadow-md">
+                                <div class="bg-slate-500 border overflow-hidden h-48 w-full flex justify-center items-center">
+                                    <img src="${book.cover_image || '../api/images/default_book.jpg'}" alt=" " class="object-cover min-w-full min-h-full" />
+                                </div>
+                                <div class="p-4 flex flex-col gap-1 capitalize">
+                                    <div class="leading-0 mb-2">
+                                        <h3 class="text-lg font-bold">${book.title}</h3>
+                                        <p class="text-gray-600 text-sm text-teal-600">By ${book.author}</p>
+                                    </div>
+                                    <p class="text-gray-600 text-sm"><strong>Published:</strong> ${book.published_date}</p>
+                                    <p class="text-gray-600 text-sm"><strong>Category:</strong> ${book.category}</p>
+                                    <p class="text-gray-600 text-sm"><strong>Qty. Available:</strong> ${book.quantity}</p>
+                                    <div class="flex gap-2 mt-2 items-center">
+                                        <button class="bg-teal-600 text-white rounded-lg py-1 px-4 mt-2 flex-grow" onclick="borrowBook(${book.id})">Borrow</button>
+                                        <a href="view_book.html?book_id=${book.id}" class="border-teal-600 text-teal-600 border rounded-lg py-1 px-4 mt-2">View</a>
+                                    </div>
+                                </div>
+                            </div>`;
+                });
+                books_grid.innerHTML = cards;
+            })
+            .catch(err => console.log(err));
+        }
+        fetchBooks();
+
+        // Search Books
+        document.getElementById("search").addEventListener("input", (e) => {
+            let search = e.target.value.toLowerCase();
+            fetch(`../api/search.php?search=${search}`)
+                .then(res => res.json())
+                .then(data => {
+                    let books_grid = document.getElementById("books_grid");
+                    books_grid.innerHTML = "";
+                    data.books.forEach(book => {
+                        let card = document.createElement("div");
+                        card.classList.add("bg-white", "rounded-lg", "shadow-md");
+                        card.innerHTML = `
+                                            <div class="bg-slate-500 border overflow-hidden h-48 w-full flex justify-center items-center">
+                                                <img src="${book.cover_image || '../api/images/default_book.jpg'}" alt=" " class="object-cover min-w-full min-h-full" />
+                                            </div>
+                                            <div class="p-4 flex flex-col gap-1 capitalize">
+                                                <div class="leading-0 mb-2">
+                                                    <h3 class="text-lg font-bold">${book.title}</h3>
+                                                    <p class="text-gray-600 text-sm text-teal-600">By ${book.author}</p>
+                                                </div>
+                                                <p class="text-gray-600 text-sm"><strong>Published:</strong> ${book.published_date}</p>
+                                                <p class="text-gray-600 text-sm"><strong>Category:</strong> ${book.category}</p>
+                                                <p class="text-gray-600 text-sm"><strong>Qty. Available:</strong> ${book.quantity}</p>
+                                                <div class="flex gap-2 mt-2 items-center">
+                                                    <button class="bg-teal-600 text-white rounded-lg py-1 px-4 mt-2 flex-grow" onclick="borrowBook(${book.id})">Borrow</button>
+                                                    <a href="view_book.html?book_id=${book.id}" class="border-teal-600 text-teal-600 border rounded-lg py-1 px-4 mt-2">View</a>
+                                                </div>
+                                            </div>
+                                        `;
+                        books_grid.appendChild(card);
+                    });
+                })
+                .catch(err => console.log(err));
+        });
+
+        // Borrow Book function
+        function borrowBook(book_id) {
+            let user = JSON.parse(localStorage.getItem("currentuser")); // Get the user object from localStorage
+            let formData = new FormData();
+            formData.append("user_id", user.id);
+            formData.append("book_id", book_id);
+
+            fetch("../api/borrow_book.php", {
+                method: "POST",
+                body: formData
+            })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.status === "success") {
+                        alert("Book borrowed successfully!");
+                        fetchBooks();
+                    } else {
+                        alert(data.message || "Failed to borrow book!");
+                    }
+                })
+                .catch(err => console.log(err));
+        }
+    </script>
 </body>
+
 </html>
