@@ -1,3 +1,3 @@
 <?php
-$connect=new mysqli("localhost", "root", "", "intranet_db")
+    $connect=new mysqli("localhost", "root", "", "intranet_db")
 ?>

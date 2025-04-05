@@ -4,6 +4,7 @@ header('Content-Type: application/json');
 $fullname=$_POST["full_name"];
 $username=$_POST["username"];
 $email=$_POST["email"];
+$phone=$_POST["phone"] ?? null;
 $password=md5($_POST["password"]);
 $role=$_POST["role"];
 
@@ -21,8 +22,8 @@ if($execCheckQuery->num_rows > 0){
 }
 
 // submit data to database
-$sqlstatement="insert into users(full_name, username, email, password, role) 
-                value('$fullname', '$username', '$email', '$password', '$role')";
+$sqlstatement="insert into users(full_name, username, email, phone, password, role) 
+                value('$fullname', '$username', '$email', '$phone', '$password', '$role')";
 
 $execQuery=$connect->query($sqlstatement);
 

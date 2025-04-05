@@ -15,9 +15,15 @@
             })
                 .then((response) => response.json())
                 .then(data => {
-                    console.log(data);
-                    event.target.reset();
-                    window.location.href="login.html"
+                    if (data.status == 'success') {
+                        console.log(data);
+                        event.target.reset();
+                        window.location.href="login.html"
+                    }
+                    else {
+                        alert(data.message)
+                    }
+
                 })
                 .catch((error) => {
                     console.error(error);
@@ -28,7 +34,7 @@
 
 <body class="bg-[url('../images/library.jpeg')]     bg-no-repeat bg-cover">
     <div class="h-screen bg-teal-500/50 text-white flex items-center justify-center ">
-        <section class="max-w-3xl text-center bg-white px-4 py-4">
+        <section class="max-w-xs w-full text-center bg-white px-4 py-4">
             <form onsubmit="submit_form(event)">
                 <h1 class="text-2xl font-bold mb-4 text-gray-800 text-start">Register</h1>
                 <div>
@@ -41,20 +47,10 @@
                     <input type="email" name="email" placeholder="Email" required class="mine-inputs">
                 </div>
                 <div class="mt-4">
-                    <input type="password" name="password" placeholder="Password" required class="mine-inputs">
+                    <input type="tel" name="phone" placeholder="Phone Number" required class="mine-inputs">
                 </div>
                 <div class="mt-4">
-                    <select name="role" required class="mine-inputs w-full">
-                        <option value="">
-                            select role
-                        </option>
-                        <option value="admin">
-                            Admin
-                        </option>
-                        <option value="user">
-                            User
-                        </option>
-                    </select>
+                    <input type="password" name="password" placeholder="Password" required class="mine-inputs">
                 </div>
                 <div class="mt-4">
                     <button type="submit" class="bg-teal-500 text-white rounded-xl w-full py-1 px-4">

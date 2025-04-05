@@ -16,6 +16,12 @@
             </aside>
             <aside class="flex items-center gap-5">
                 <a href="user_dashboard.html" class="hover:underline">Dashboard</a>
+                <div class="flex items-center gap-2">
+                    <div class="h-8 w-8 rounded-full bg-gray-200 overflow-hidden">
+                        <img src="../api/images/default_user.svg" class="object-cover max-w-full max-h-full" alt="">
+                    </div>
+                    <span id="active_user"></span>
+                </div>
                 <a href="../api/logout.php"
                     class="bg-white shadow font-bold text-sm text-teal-700 px-3 py-1 rounded-lg">
                     Logout
@@ -31,11 +37,14 @@
     </div>
 
     <section>
-        <aside class="grid grid-cols-2 md:grid-cols-4 gap-3 max-w-6xl mx-auto px-4" id="borrowed_books_grid">
+        <aside class="grid grid-cols-2 md:grid-cols-3 gap-3 max-w-6xl mx-auto px-4" id="borrowed_books_grid">
         </aside>
     </section>
 
     <script>
+        let user = JSON.parse(localStorage.getItem('currentuser'));
+        document.getElementById('active_user').textContent=user.username;
+        
         function fetchBorrowedBooks() {
             const userId = JSON.parse(localStorage.getItem('currentuser')).id;
 
@@ -43,13 +52,14 @@
                 .then(response => response.json())
                 .then(data => {
                     const borrowedBooksGrid = document.getElementById('borrowed_books_grid');
-                    borrowedBooksGrid.innerHTML = '';
 
-                    if (data.borrowedBooks && data.borrowedBooks.length === 0) {
+                    if (data.borrowedBooks && data.borrowedBooks.length > 0) {
+                        bookCard = "";
                         data.borrowedBooks.forEach(borrowedBook => {
-                            const bookCard = document.createElement('div');
-                            bookCard.classList.add('bg-white', 'rounded-lg', 'shadow-md');
-                            bookCard.innerHTML = `
+                            bookCard += `<div class="bg-white rounded-lg shadow-md flex gap-x-2 items-start">
+                                <div class="bg-slate-500 border overflow-hidden w-28 flex justify-center items-center">
+                                    <img src="${borrowedBook.cover_image || '../api/images/default_book.jpg'}" alt=" " class="object-cover min-w-full min-h-full" />
+                                </div>
                                 <div class="p-4">
                                     <h3 class="text-lg font-bold">${borrowedBook.title}</h3>
                                     <p class="text-gray-600 text-sm">By ${borrowedBook.author}</p>
@@ -57,9 +67,10 @@
                                     <p class="text-gray-600 text-sm">Return on ${borrowedBook.return_date}</p>
                                     <button class="bg-teal-600 text-white rounded-lg py-1 px-4 mt-2" onclick="returnBook(${borrowedBook.id})">Return Book</button>
                                 </div>
-                            `;
-                            borrowedBooksGrid.appendChild(bookCard);
+                            </div>`;
                         });
+                        
+                        borrowedBooksGrid.innerHTML = bookCard;
                     } else {
                         const noBooksCard = document.createElement('div');
                         noBooksCard.classList.add('bg-white', 'rounded-lg', 'shadow-md', 'md:col-span-4');
@@ -68,8 +79,8 @@
                                 <h3 class="text-lg font-bold">No record of borrowed books found!</h3>
                             </div>
                         `;
-                        borrowedBooksGrid.appendChild(noBooksCard);
-                        console.log(data);
+                        borrowedBooksGrid.innerHTML = noBooksCard.outerHTML; // Append the no-books card to the grid
+                        console.log("data", data);
                     }
                 })
                 .catch(error => console.error(error));

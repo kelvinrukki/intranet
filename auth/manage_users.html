@@ -17,6 +17,13 @@
             
             <aside class="flex items-center gap-5">
                 <a href="manage_books.html" class="hover:underline">Manage Books</a>
+                <a href="manage_borrowed.html" class="hover:underline">Borrowed Books</a>
+                <div class="flex items-center gap-2">
+                    <div class="h-8 w-8 rounded-full bg-gray-200 overflow-hidden">
+                        <img src="../api/images/default_user.svg" class="object-cover max-w-full max-h-full" alt="">
+                    </div>
+                    <span id="active_user"></span>
+                </div>
                 <a href="../api/logout.php" class="bg-white shadow font-bold text-sm text-teal-700 px-3 py-1 rounded-lg">
                     Logout
                 </a>
@@ -111,6 +118,11 @@
 
 
     <script>
+
+        let user = JSON.parse(localStorage.getItem('currentuser'));
+        document.getElementById('active_user').textContent=user.username;
+        //console.log(user);
+
         function fetchUsers() {
             fetch("../api/admin/fetch_all_users.php", {
                 method: "GET"

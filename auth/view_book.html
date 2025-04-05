@@ -69,20 +69,22 @@
                 document.getElementById('quantity').innerText = 'Quantity Available: ' + data.book.quantity;
                 document.getElementById('cover_image').src = data.book.cover_image || '../api/images/default_book.jpg';
 
-                const relatedBooks = "";
+                let relatedBooks = "";
                 data.related_books.forEach(book => {
-                    relatedBooks += `<div class="bg-white rounded-lg shadow-md p-4 flex flex-col gap-2 flex-grow">
-                                        <h1 class="text-2xl font-semibold">${book.title}</h1>
-                                        <p class="text-gray-600 text-sm">By ${book.author}</p>
-                                        <p class="text-gray-600 text-sm">${book.published_date}</p>
-                                        <p class="text-gray-600 text-sm">${book.isbn}</p>
-                                        <p class="text-gray-600 text-sm">${book.category}</p>
-                                        <p class="text-gray-600 text-sm">${book.quantity}</p>
-                                        <div class="flex gap-2 mt-2 items-center">
-                                            <button class="bg-teal-600 text-white rounded-lg py-1 px-4 mt-2 flex-grow" onclick="borrowBook(${book.id})">Borrow</button>
-                                            <a href="view_book.html?book_id=${book.id}" class="border-teal-600 text-teal-600 border rounded-lg py-1 px-4 mt-2">View</a>
+                    relatedBooks += `<a href="view_book.html?book_id=${book.id}" class="bg-white rounded-lg shadow-md block">
+                                        <div class="bg-slate-500 border overflow-hidden h-48 w-full flex justify-center items-center">
+                                            <img src="${book.cover_image || '../api/images/default_book.jpg'}" alt=" " class="object-cover min-w-full min-h-full" />
                                         </div>
-                                    </div>`;
+                                        <div class="p-4 flex flex-col gap-1 capitalize">
+                                            <div class="leading-0 mb-2">
+                                                <h3 class="text-lg font-bold">${book.title}</h3>
+                                                <p class="text-gray-600 text-sm text-teal-600">By ${book.author}</p>
+                                            </div>
+                                            <p class="text-gray-600 text-sm"><strong>Published:</strong> ${book.published_date}</p>
+                                            <p class="text-gray-600 text-sm"><strong>Category:</strong> ${book.category}</p>
+                                            <p class="text-gray-600 text-sm"><strong>Qty. Available:</strong> ${book.quantity}</p>
+                                        </div>
+                                    </a>`;
                 });
 
                 document.getElementById('related_books').innerHTML = relatedBooks;

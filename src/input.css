@@ -1,5 +1,5 @@
 @import "tailwindcss";
 
 .mine-inputs{
-    @apply border-teal-500 border rounded-xl text-teal-500 px-3 py-1;
+    @apply border-teal-500 border rounded-xl text-teal-500 px-3 py-1 w-full;
 }

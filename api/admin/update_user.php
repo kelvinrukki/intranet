@@ -28,13 +28,13 @@ if ($result->num_rows == 1) {
     $fullname = $_POST['full_name'] ?? $user['full_name'];
     $username = $_POST['username'] ?? $user['username'];
     $email = $_POST['email'] ?? $user['email'];
-    $password = $_POST['password'] ? md5($_POST['password']) : $user['password'];
+    //$password = $_POST['password'] ? md5($_POST['password']) : $user['password'];
     $role = $_POST['role'] ?? $user['role'];
 
     // Update the user record
-    $sqlStatement = "UPDATE users SET full_name=?, username=?, email=?, password=?, role=? WHERE id=?";
+    $sqlStatement = "UPDATE users SET full_name=?, username=?, email=?, role=? WHERE id=?";
     $stmt = $connect->prepare($sqlStatement);
-    $stmt->bind_param("sssssi", $fullname, $username, $email, $password, $role, $user_id);
+    $stmt->bind_param("ssssi", $fullname, $username, $email, $role, $user_id);
     $stmt->execute();
 
     if ($stmt->affected_rows > 0) {

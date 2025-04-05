@@ -28,7 +28,12 @@ if ($result->num_rows > 0) {
     $stmt = $connect->prepare($sqlStatement);
     $stmt->bind_param("si", $book['category'], $book_id);
     $stmt->execute();
-    $related_books = $stmt->get_result()->fetch_assoc();
+    $result = $stmt->get_result();
+    $related_books = [];
+
+    while ($row = $result->fetch_assoc()) {
+        $related_books[] = $row;
+    }
 
     header("HTTP/1.1 200");
     echo json_encode([

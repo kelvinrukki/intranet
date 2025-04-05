@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Users</title>
+    <link rel="stylesheet" href="../src/output.css">
+</head>
+
+<body class="bg-slate-100">
+    <header class="bg-teal-700 text-white">
+        <div class="max-w-6xl mx-auto flex justify-between items-center">
+            <aside>
+                <h2 class="text-xl font-bold py-2 px-4 md:px-0">Manage Borrowed Books</h2>
+            </aside>
+
+            <aside class="flex items-center gap-5">
+                <a href="manage_users.html" class="hover:underline">Manage Users</a>
+                <a href="manage_books.html" class="hover:underline">Manage Books</a>
+                <div class="flex items-center gap-2">
+                    <div class="h-8 w-8 rounded-full bg-gray-200 overflow-hidden">
+                        <img src="../api/images/default_user.svg" class="object-cover max-w-full max-h-full" alt="">
+                    </div>
+                    <span id="active_user"></span>
+                </div>
+                <a href="../api/logout.php"
+                    class="bg-white shadow font-bold text-sm text-teal-700 px-3 py-1 rounded-lg">
+                    Logout
+                </a>
+            </aside>
+        </div>
+    </header>
+
+    <div class="py-4 max-w-6xl mx-auto flex justify-between px-4">
+        <aside>
+            <a href="admin_dashboard.html" class="text-sm text-blue-500 hover:underline">Back to Dashboard</a>
+        </aside>
+    </div>
+
+
+    <!-- Borrowers (users) Section -->
+    <section>
+        <div class="max-w-6xl mx-auto">
+            <table class="w-full text-left border-collapse">
+                <thead>
+                    <tr class="bg-teal-700 text-white text-sm font-bold text-start">
+                        <th class="py-2 px-4 text-left">Full name</th>
+                        <th class="py-2 px-4 text-left">Email</th>
+                        <th class="py-2 px-4 text-left">Phone</th>
+                        <th class="py-2 px-4 text-left">Number of Borrowed Books</th>
+                        <th class="py-2 px-4 text-left"></th>
+                    </tr>
+                </thead>
+                <tbody id="borrowers_table">
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <section
+        class="min-h-screen fixed top-0 -right-96 w-96 bg-white shadow-lg transition-all duration-300 ease-in-out"
+        id="borrowed_books_section">
+        <div class="flex justify-between items-center mb-4 py-2 px-4 border-b border-gray-300">
+            <h2 class="text-lg font-bold">Borrowed Books</h2>
+            <button class="text-red-500" onclick="closeBorrowedBooksSection()">
+                <img src="../images/close-square.svg" alt="X" class="w-6 h-6">
+            </button>
+        </div>
+        <div id="borrowed_books_list" class="flex flex-col gap-2"></div>
+    </section>
+
+
+
+    <script>
+        let user = JSON.parse(localStorage.getItem('currentuser'));
+        document.getElementById('active_user').textContent=user.username;
+        
+        function fetchBorrowedBooks() {
+            fetch("../api/admin/fetch_boorowed_books.php", {
+                method: "GET"
+            })
+                .then((response) => response.json())
+                .then((data) => {
+                    // Store All borrowed books in local storage
+                    localStorage.setItem('borrowed_books', JSON.stringify(data.users));
+
+                    // Display the borrowed books in the table
+                    const borrowersTable = document.getElementById('borrowers_table');
+                    if (data.users && data.users.length > 0) {
+                        let tableRows = '';
+                        data.users.forEach(user => {
+                            tableRows += `<tr class="bg-white odd:bg-gray-100 even:bg-white text-sm font-normal text-gray-700">
+                                    <td class="py-2 px-4 ">${user.full_name}</td>
+                                    <td class="py-2 px-4 ">${user.email}</td>
+                                    <td class="py-2 px-4 ">${user.phone || 'NA'}</td>
+                                    <td class="py-2 px-4 ">${user.borrowed_books.length}</td>
+                                    <td class="py-2 px-4 ">
+                                        <button class="bg-teal-600 text-white rounded-lg py-1 px-4" onclick="fetchBorrowedBooksByUser(${user.id})">View Books</button>
+                                    </td>
+                                </tr>`;
+                        });
+                        borrowersTable.innerHTML = tableRows;
+                    } else {
+                        const noBooksCard = document.createElement('div');
+                        noBooksCard.classList.add('bg-white', 'rounded-lg', 'shadow-md', 'md:col-span-4');
+                        noBooksCard.innerHTML = `
+                                <div class="p-4">
+                                    <h3 class="text-lg font-bold">No record of borrowed books found!</h3>
+                                </div>
+                            `;
+                        borrowersTable.innerHTML = noBooksCard.outerHTML;
+                    }
+                })
+                .catch((error) => console.error(error));
+        }
+        fetchBorrowedBooks(); // Called the fetch user method
+
+        function fetchBorrowedBooksByUser(userId) {
+            const borrowedBooks = JSON.parse(localStorage.getItem('borrowed_books'));
+            const user = borrowedBooks.find(user => user.id == userId);
+            // console.log(user, borrowedBooks, userId);
+
+            if (user) {
+                const books = user.borrowed_books;
+                let bookList = '<ul class="list-none pl-5">';
+                books.forEach(book => {
+                    bookList += `<li class="list-none bg-white shadow-md rounded-lg p-4 mb-2">
+                            <div class="flex justify-start items-center">
+                                <aside class="flex items-center justify-center w-20 p-1 bg-gray-200 rounded-lg">
+                                    <img src="${book.cover_image}" alt="Book" class="max-w-full max-h-full object-cover">
+                                </aside>
+                                <aside class="ml-4 flex-grow">
+                                    <h3 class="text-lg font-bold">${book.title}</h3>
+                                    <p class="text-sm text-gray-600"><strong>Author:</strong> ${book.author}</p>
+                                    <p class="text-sm text-gray-600"><strong>Category:</strong> ${book.category}</p>
+                                    <p class="text-sm text-gray-600"><strong>ISBN:</strong> ${book.isbn}</p>
+                                    <p class="text-sm text-gray-600"><strong>Borrowed Date:</strong> ${book.borrowed_date}</p>
+                                    <p class="text-sm text-gray-600"><strong>Expected Return Date:</strong> ${book.return_date}</p>
+                                </aside>
+                            </div>
+                            <!-- <hr class="my-3 border-slate-400">
+                            <div class="flex justify-between items-center">
+                                <button class="bg-teal-600 text-white rounded-lg py-1 px-4" onclick="returnBook(${book.id}, ${userId})">Return Book</button>
+                                <button class="bg-blue-500 text-white rounded-lg py-1 px-4" onclick="extendBook(${book.id}, ${userId})">Extend</button>
+                            </div> -->
+                        </li>`;
+                });
+                bookList += '</ul>';
+                document.getElementById('borrowed_books_list').innerHTML = bookList;
+                openBorrowedBooksSection();
+            } else {
+                alert('No borrowed books found for this user.');
+            }
+        }
+
+        function closeBorrowedBooksSection() {
+            document.getElementById('borrowed_books_section').classList.add('-right-96');
+            document.getElementById('borrowed_books_section').classList.remove('right-0');
+        }
+
+        function openBorrowedBooksSection() {
+            document.getElementById('borrowed_books_section').classList.remove('-right-96');
+            document.getElementById('borrowed_books_section').classList.add('right-0');
+        }
+    </script>
+</body>
+
+</html>
